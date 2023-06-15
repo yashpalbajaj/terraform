@@ -4,6 +4,10 @@ terraform {
   }
 }
 
+data "template_file" "prefix" {
+  template = file("/etc/.azure/prefix")
+}
+
 data "template_file" "client_id" {
   template = file("/etc/.azure/client_id")
 }
@@ -25,12 +29,12 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "main" {
-  name     = "${var.prefix}-resources"
+  name     = "${trimspace(data.template_file.prefix.rendered)}-resources"
   location = var.location
 }
 
 resource "azurerm_virtual_network" "main" {
-  name                = "${var.prefix}-network"
+  name                = "${trimspace(data.template_file.prefix.rendered)}-network"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
@@ -44,14 +48,14 @@ resource "azurerm_subnet" "internal" {
 }
 
 resource "azurerm_public_ip" "main" {
-  name                = "${var.prefix}-pip"
+  name                = "${trimspace(data.template_file.prefix.rendered)}-pip"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "main" {
-  name                = "${var.prefix}-nic"
+  name                = "${trimspace(data.template_file.prefix.rendered)}-nic"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
 
@@ -64,7 +68,7 @@ resource "azurerm_network_interface" "main" {
 }
 
 resource "azurerm_linux_virtual_machine" "main" {
-  name                            = "${var.prefix}-vm"
+  name                            = "${trimspace(data.template_file.prefix.rendered)}-vm"
   resource_group_name             = azurerm_resource_group.main.name
   location                        = azurerm_resource_group.main.location
   size                            = "Standard_F2"
