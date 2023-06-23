@@ -35,19 +35,19 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "main" {
-  name     = "${trimspace(data.template_file.prefix.rendered)}-resources"
+  name     = "${trimspace(data.template_file.prefix.rendered)}-rg"
   location = var.location
 }
 
 resource "azurerm_virtual_network" "main" {
-  name                = "${trimspace(data.template_file.prefix.rendered)}-network"
+  name                = "${trimspace(data.template_file.prefix.rendered)}-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 }
 
-resource "azurerm_subnet" "internal" {
-  name                 = "internal"
+resource "azurerm_subnet" "main" {
+  name                 = "${trimspace(data.template_file.prefix.rendered)}-sn"
   resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.2.0/24"]
@@ -67,7 +67,7 @@ resource "azurerm_network_interface" "main" {
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.internal.id
+    subnet_id                     = azurerm_subnet.main.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.main.id
   }
