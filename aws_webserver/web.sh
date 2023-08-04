@@ -1,6 +1,7 @@
 #!/bin/bash
 sudo apt-get update -y
 sudo apt-get install apache2 -y
+sudo apt-get install wget
 sudo cd /var/www/html/
 sudo wget https://www.free-css.com/assets/files/free-css-templates/download/page275/roxy.zip
 sudo unzip roxy.zip
